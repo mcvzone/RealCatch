@@ -1,26 +1,29 @@
 package com.devman.neo.realcatch.common;
 
+import android.database.sqlite.SQLiteDatabase;
+
 /**
  * Created by neo on 2017-08-22.
  */
-
 public class DDL {
 
-    public static String SMS_LIST_T(){
-        StringBuffer sql = new StringBuffer();
-        sql.append("CREATE TABLE IF NOT EXISTS "+TABLE.T_SMS_LIST+"(");
-        sql.append(TABLE.SMS_LIST.SEQ + " integer primary key autoincrement, ");
-        sql.append(TABLE.SMS_LIST.MESSAGE + " TEXT, ");
-        sql.append(TABLE.SMS_LIST.RECEIVED_DT + " TEXT");
-        sql.append(")");
-        return sql.toString();
+    SQLiteDatabase database;
+
+    public DDL(SQLiteDatabase database) {
+        this.database = database;
     }
 
-    public static String FILTER_LIST_T(){
+    public void SMS_LIST(){
         StringBuffer sql = new StringBuffer();
-        sql.append("CREATE TABLE IF NOT EXISTS "+TABLE.T_FILTER_LIST+"(");
-        sql.append(TABLE.FILTER_LIST.SENDER + " TEXT");
-        sql.append(")");
-        return sql.toString();
+        sql.append("CREATE TABLE IF NOT EXISTS SMS_LIST(\n");
+        sql.append("SEQ integer primary key autoincrement, \n");
+        sql.append("SENDER TEXT, \n");
+        sql.append("MESSAGE TEXT, \n");
+        sql.append("RECEIVED_DT TEXT )");
+        database.execSQL(sql.toString());
+    }
+
+    public void FILTER_LIST(){
+        database.execSQL("CREATE TABLE IF NOT EXISTS FILTER_LIST ( SENDER TEXT, PRIMARY KEY(SENDER) )");
     }
 }

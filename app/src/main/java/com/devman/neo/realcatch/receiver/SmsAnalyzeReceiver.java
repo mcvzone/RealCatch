@@ -3,6 +3,7 @@ package com.devman.neo.realcatch.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,8 +18,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class SmsAnalyzeReceiver extends BroadcastReceiver {
-    private SQLiteDatabase database;
-
     @Override
     public void onReceive(Context context, Intent intent) {
         SmsMessage[] messages = getMessages(intent.getExtras());
@@ -35,11 +34,14 @@ public class SmsAnalyzeReceiver extends BroadcastReceiver {
         Log.d("MYLOG", "sReceived dt : " + sReceived);
 
         DataBaseManager dataBaseManager = DataBaseManager.getInstance(context);
-        database = dataBaseManager.getWritableDatabase();
-
-        Object[] param = {sMessage, sReceived};
-        database.execSQL(DML.insertSmsMessage(), param);
-        //Toast.makeText(context, "저장 완료", Toast.LENGTH_SHORT).show();
+        SQLiteDatabase database = dataBaseManager.getWritableDatabase();
+        DML dml = new DML(database);
+        Cursor cursor = dml.selectSender(new String[]{sSender});
+        if (cursor != null && cursor.moveToNext()) {
+            dml.insertSmsMessage(new Object[]{sSender, sMessage, sReceived});
+        } else {
+            Log.d("MYLOG", "필터로 추가되지 않은 번호.");
+        }
     }
 
 
@@ -56,9 +58,6 @@ public class SmsAnalyzeReceiver extends BroadcastReceiver {
 
         if (objects != null && objects.length > 0) {
             String sFormat = bundle.getString("format");
-
-            Log.d("MYLOG", sFormat);
-
             for( int i=0; i<objects.length; i++ ){
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
                     messages[i] = SmsMessage.createFromPdu((byte[])objects[i], sFormat);

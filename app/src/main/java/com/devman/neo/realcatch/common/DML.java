@@ -1,26 +1,42 @@
 package com.devman.neo.realcatch.common;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
 /**
  * Created by neo on 2017-08-22.
  */
 
 public class DML {
-    public static String insertSmsMessage(){
-        StringBuffer sql = new StringBuffer();
-        sql.append("INSERT INTO "+TABLE.T_SMS_LIST+"(");
-        sql.append(TABLE.SMS_LIST.MESSAGE+", ");
-        sql.append(TABLE.SMS_LIST.RECEIVED_DT);
-        sql.append(") values (?, ?)");
+    SQLiteDatabase database;
 
-        return sql.toString();
+    public DML(SQLiteDatabase database) {
+        this.database = database;
     }
 
-    public static String insertFilterNumber(){
-        StringBuffer sql = new StringBuffer();
-        sql.append("INSERT INTO "+TABLE.T_FILTER_LIST+"(");
-        sql.append(TABLE.FILTER_LIST.SENDER);
-        sql.append(") values (?)");
+    public Cursor selectSender(String [] param){
+        return database.rawQuery("SELECT SENDER FROM FILTER_LIST WHERE SENDER = ?", param);
+    }
 
-        return sql.toString();
+    public Cursor selectFilterList(){
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT SENDER, COUNT(*) CNT FROM SMS_LIST GROUP BY SENDER");
+
+        return database.rawQuery(sql.toString(), null);
+    }
+
+    public Cursor selectSmsList(String [] param){
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT MESSAGE, COUNT(*) CNT FROM SMS_LIST WHERE SENDER = ? GROUP BY MESSAGE");
+
+        return database.rawQuery(sql.toString(), param);
+    }
+
+    public void insertSmsMessage(Object [] param){
+        database.execSQL("INSERT INTO SMS_LIST(SENDER, MESSAGE, RECEIVED_DT) values (?, ?, ?)", param);
+    }
+
+    public void insertFilterNumber(Object [] param){
+        database.execSQL("INSERT INTO FILTER_LIST (SENDER) values (?)", param);
     }
 }

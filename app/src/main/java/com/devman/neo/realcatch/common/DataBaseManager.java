@@ -20,8 +20,9 @@ public class DataBaseManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         Log.d("MYLOG", "DB onCreate call.");
-        sqLiteDatabase.execSQL(DDL.SMS_LIST_T());
-        sqLiteDatabase.execSQL(DDL.FILTER_LIST_T());
+        DDL ddl = new DDL(sqLiteDatabase);
+        ddl.SMS_LIST();
+        ddl.FILTER_LIST();
     }
 
     @Override
